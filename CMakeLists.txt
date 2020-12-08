@@ -16,7 +16,7 @@ add_executable(tests tests.cpp)
 set_target_properties(ip_filter versionlib tests PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
-    COMPILE_OPTIONS "-Wpedantic;-Wall; -Wextra"
+    COMPILE_OPTIONS "-Wpedantic;-Wall;-Wextra"
 )
 
 set_target_properties(tests PROPERTIES
