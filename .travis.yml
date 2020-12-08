@@ -1,0 +1,17 @@
+addons:
+  apt:
+    packages:
+      - libboost-test-dev
+compiler: clang
+deploy:
+  provider: script
+  script:
+    - curl -f -T ip_filter-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -unggshik:$BINTRAY_API_KEY "https://api.bintray.com/content/nggshik/study-cpp/ip_filter/$TRAVIS_BUILD_NUMBER/ip_filter-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=xenial;deb_component=main;deb_architecture=amd64;publish=1"
+  skip_cleanup: true
+dist: xenial
+language: cpp
+script:
+  - "cmake ."
+  - "cmake --build ."
+  - "cmake --build . --target test"
+  - "cmake --build . -target package"  

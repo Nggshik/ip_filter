@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.2)
 
-project(ip_filter VERSION 0.0.1)
+if(NOT DEFINED ${TRAVIS_BUILD_NUMBER})
+  set(TRAVIS_BUILD_NUMBER 1)
+endif(NOT DEFINED ${TRAVIS_BUILD_NUMBER})
+
+project(ip_filter VERSION 0.0.${TRAVIS_BUILD_NUMBER})
 
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
@@ -16,7 +20,7 @@ add_executable(tests tests.cpp)
 set_target_properties(ip_filter versionlib tests PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
-    COMPILE_OPTIONS "-Wpedantic;-Wall; -Wextra"
+    COMPILE_OPTIONS "-Wpedantic;-Wall;-Wextra"
 )
 
 set_target_properties(tests PROPERTIES
