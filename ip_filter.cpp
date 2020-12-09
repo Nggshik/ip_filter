@@ -1,12 +1,10 @@
+#include "ip_filter.hpp"
+
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
-#include <string>
-#include <vector>
 #include <algorithm>
 
-using ipList = std::vector<std::vector<std::string>>;
-using ipAddress = std::vector<std::string>;
 // ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
 // ("..", '.') -> ["", "", ""]
@@ -32,12 +30,29 @@ ipAddress split(const std::string &str, char d)
     return r;
 }
 
+bool compareIpVector(const ipAddress& firstIp, const ipAddress& secondIp)
+{
+    // assert(firstIp.size() == 4);
+    
+    for(int ip_part = 0;ip_part < 4;++ip_part)
+    {
+        if(std::stoi(firstIp[ip_part]) > std::stoi(secondIp[ip_part]))
+        {
+            return true;
+        }
+        else if(std::stoi(firstIp[ip_part]) < std::stoi(secondIp[ip_part]))
+        {
+            return false;
+        }
+    }
+    return false;
+}
+
 int main(int argc, char const *argv[])
 {
     try
     {
         ipList ip_pool;
-
         for(std::string line; std::getline(std::cin, line);)
         {
             ipAddress v = split(line, '\t');
@@ -45,6 +60,7 @@ int main(int argc, char const *argv[])
         }
 
         // TODO reverse lexicographically sort
+        std::sort(ip_pool.begin(), ip_pool.end(), [](const ipAddress& ip1, const ipAddress& ip2){return compareIpVector(ip1,ip2);});
         for(auto ip = ip_pool.cbegin(); ip != ip_pool.cend(); ++ip)
         {
             for(auto ip_part = ip->cbegin(); ip_part != ip->cend(); ++ip_part)
