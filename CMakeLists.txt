@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-if(NOT DEFINED TRAVIS_BUILD_NUMBER)
-  set(TRAVIS_BUILD_NUMBER 1)
-endif(NOT DEFINED TRAVIS_BUILD_NUMBER)
-
-project(ip_filter VERSION 0.0.${TRAVIS_BUILD_NUMBER})
+project(ip_filter VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
 
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)

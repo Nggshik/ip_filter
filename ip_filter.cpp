@@ -1,10 +1,10 @@
 #include "ip_filter.hpp"
+#include "lib.h"
 
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <algorithm>
-
 // ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
 // ("..", '.') -> ["", "", ""]
@@ -30,38 +30,10 @@ ipAddress split(const std::string &str, char d)
     return r;
 }
 
-bool compareIpVector(const ipAddress& firstIp, const ipAddress& secondIp)
-{
-    // assert(firstIp.size() == 4);
-    
-    for(int ip_part = 0;ip_part < 4;++ip_part)
-    {
-        if(std::stoi(firstIp[ip_part]) > std::stoi(secondIp[ip_part]))
-        {
-            return true;
-        }
-        else if(std::stoi(firstIp[ip_part]) < std::stoi(secondIp[ip_part]))
-        {
-            return false;
-        }
-    }
-    return false;
-}
 
-int main(int argc, char const *argv[])
+void printIpPool(const ipList& list)
 {
-    try
-    {
-        ipList ip_pool;
-        for(std::string line; std::getline(std::cin, line);)
-        {
-            ipAddress v = split(line, '\t');
-            ip_pool.push_back(split(v.at(0), '.'));
-        }
-
-        // TODO reverse lexicographically sort
-        std::sort(ip_pool.begin(), ip_pool.end(), [](const ipAddress& ip1, const ipAddress& ip2){return compareIpVector(ip1,ip2);});
-        for(auto ip = ip_pool.cbegin(); ip != ip_pool.cend(); ++ip)
+        for(auto ip = list.cbegin(); ip != list.cend(); ++ip)
         {
             for(auto ip_part = ip->cbegin(); ip_part != ip->cend(); ++ip_part)
             {
@@ -74,7 +46,57 @@ int main(int argc, char const *argv[])
             
             std::cout << std::endl;
         }
+}
 
+
+
+int main(int argc, char const *argv[])
+{
+    UNUSED(argc);
+    UNUSED(argv);
+    try
+    {
+        ipList ip_pool;
+        for(std::string line; std::getline(std::cin, line);)
+        {
+            ipAddress v = split(line, '\t');
+            ip_pool.push_back(split(v.at(0), '.'));
+        }
+
+        // TODO reverse lexicographically sort
+        std::sort(ip_pool.begin(), ip_pool.end(), [](const ipAddress& ip1, const ipAddress& ip2){return compareIpVector(ip1,ip2);});
+        
+        printIpPool(ip_pool);
+
+        // auto rs = isMatch(ip_pool[0].cbegin(),ip_pool[0].cend(),222);
+        auto filter = [&ip_pool](auto... args)
+                        {
+                            ipList flList;
+                            for(auto const& ip : ip_pool) 
+                            {
+                                if(isMatch(ip.cbegin(),ip.cend(),args...))
+                                 flList.push_back(ip);
+                            }
+                            return flList;
+                        };
+       auto filter_any = [&ip_pool](int val)
+                        {
+                            ipList flList;
+                            std::copy_if(ip_pool.cbegin(),ip_pool.cend(),std::back_inserter(flList),
+                                [val](auto ip){
+                                    return std::any_of(ip.cbegin(),ip.cend(),[val](auto decade){return std::stoi(decade) == val;});
+                                    });
+                            
+                            return flList;
+                        };
+        auto ip = filter(1);
+        printIpPool(ip);
+
+        ip = filter(46,70);
+        printIpPool(ip);
+
+        ip = filter_any(46);
+        printIpPool(ip);
         // 222.173.235.246
         // 222.130.177.64
         // 222.82.198.61
